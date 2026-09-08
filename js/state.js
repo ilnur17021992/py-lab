@@ -367,6 +367,40 @@ class AppState extends EventTarget {
       this.emitChange('save-status', { status: 'saved' });
     }
   }
+
+  getRuntime() {
+    return localStorage.getItem('py_lab_runtime') || 'pyodide';
+  }
+
+  setRuntime(runtime) {
+    if (runtime !== 'pyodide' && runtime !== 'e2b') return;
+    localStorage.setItem('py_lab_runtime', runtime);
+    this.emitChange('runtime-changed', { runtime });
+  }
+
+  getE2BApiKey() {
+    return localStorage.getItem('py_lab_e2b_api_key') || '';
+  }
+
+  setE2BApiKey(key) {
+    const trimmed = (key || '').trim();
+    if (trimmed) {
+      localStorage.setItem('py_lab_e2b_api_key', trimmed);
+    } else {
+      localStorage.removeItem('py_lab_e2b_api_key');
+    }
+    this.emitChange('e2b-key-changed', { hasKey: !!trimmed });
+  }
+
+  getE2BTimeout() {
+    const val = localStorage.getItem('py_lab_e2b_timeout');
+    return val !== null ? Number(val) : 300000;
+  }
+
+  setE2BTimeout(ms) {
+    localStorage.setItem('py_lab_e2b_timeout', String(ms));
+    this.emitChange('e2b-timeout-changed', { timeout: ms });
+  }
 }
 
 export const state = new AppState();

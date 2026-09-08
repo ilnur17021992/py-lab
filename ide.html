@@ -95,6 +95,26 @@
     <div class="nav-actions-section">
       <span id="saveStatusIndicator" class="save-status-badge" title="Статус сохранения">Сохранено</span>
 
+      <!-- Runtime Environment Selector (Pyodide WASM / E2B Cloud) -->
+      <div class="runtime-selector-wrapper" id="runtimeSelectorWrapper" title="Выбор среды выполнения">
+        <div class="runtime-segmented-control" role="group" aria-label="Среда выполнения">
+          <button type="button" class="runtime-segment-btn active" id="runtimePyodideBtn" data-runtime="pyodide" title="Локальное выполнение в браузере (WASM, бесплатно, без API ключа)">
+            <span class="runtime-segment-icon">💻</span>
+            <span class="runtime-segment-text">Local</span>
+          </button>
+          <button type="button" class="runtime-segment-btn" id="runtimeE2BBtn" data-runtime="e2b" title="Изолированная Linux microVM E2B (пакеты, сеть, системные модули)">
+            <span class="runtime-segment-icon">☁️</span>
+            <span class="runtime-segment-text">Cloud</span>
+          </button>
+        </div>
+        <button type="button" class="runtime-config-btn" id="e2bSettingsBtn" title="Настройки облачной песочницы E2B">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+
       <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
         <span>🪄</span>
         <span>Формат</span>
