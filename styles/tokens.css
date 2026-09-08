@@ -1,0 +1,89 @@
+/* styles/tokens.css - Centralized Design Tokens */
+:root {
+  /* Surface & Background Colors */
+  --bg-primary: #070b10;
+  --bg-main: #0b0f17;
+  --bg-secondary: #0d1420;
+  --bg-tertiary: #151f30;
+  --bg-card: #151f30;
+  --bg-card-hover: #1c2a42;
+  --bg-darker: #05080c;
+  --bg-header: #0a0f18;
+  --bg-editor: #0c121c;
+  --bg-modal: #0d1522;
+  --bg-input: rgba(17, 24, 39, 0.75);
+  --bg-kbd: #090e17;
+  --bg-dropdown: #0b111a;
+  --bg-filter-bar: #0f1724;
+  --bg-snippet: #060a10;
+  --bg-overlay: rgba(0, 0, 0, 0.78);
+
+  /* Border Colors */
+  --border-color: #1f2d40;
+  --border-light: #2d3f59;
+  --border-active: #ff6b00;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* Primary Brand Accents */
+  --primary: #ff6b00;
+  --primary-hover: #ff8533;
+  --primary-subtle: rgba(255, 107, 0, 0.12);
+  --accent-color: #ff6b00;
+  --accent-hover: #ff8533;
+
+  /* Semantic Feedback Accents */
+  --accent-cyan: #38bdf8;
+  --accent-cyan-subtle: rgba(56, 189, 248, 0.15);
+  --accent-green: #22c55e;
+  --accent-green-subtle: rgba(34, 197, 94, 0.15);
+  --accent-red: #ef4444;
+  --accent-red-hover: #dc2626;
+  --accent-red-subtle: rgba(239, 68, 68, 0.15);
+  --accent-warning: #eab308;
+  --accent-warning-subtle: rgba(234, 179, 8, 0.15);
+
+  /* Typography Colors */
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --text-bright: #ffffff;
+  --text-inverse: #000000;
+
+  /* Typography Font Stacks */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, "Fira Code", monospace;
+
+  /* Sizing & Dimensions */
+  --nav-height: 60px;
+  --header-height: 48px;
+  --sidebar-width: 240px;
+  --terminal-height: 220px;
+  --terminal-header-height: 34px;
+
+  /* Border Radii */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Shadows & Elevation */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-modal: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.08);
+  --shadow-primary-sm: 0 2px 10px rgba(255, 107, 0, 0.35);
+  --shadow-primary-lg: 0 4px 14px rgba(255, 107, 0, 0.5);
+  --shadow-pulse-primary: 0 0 20px rgba(255, 107, 0, 0.6);
+  --shadow-pulse-cyan: 0 0 25px rgba(56, 189, 248, 0.7);
+
+  /* Scrollbars */
+  --scrollbar-track: #070b10;
+  --scrollbar-thumb: #1f2f45;
+  --scrollbar-thumb-hover: #ff6b00;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+}

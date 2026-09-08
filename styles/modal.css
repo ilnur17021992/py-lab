@@ -1,0 +1,607 @@
+/* styles/modal.css - Sandbox Projects Modal (Styled in Project Theme) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sandbox-modal {
+  background: #0d1522;
+  border: 1px solid var(--border-light, #2d3f59);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 85vh;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.96);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-main, #f1f5f9);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  box-sizing: border-box;
+}
+
+.modal-overlay.active .sandbox-modal {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border, #1f2d40);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111b2b;
+}
+
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.modal-body {
+  padding: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.create-project-card {
+  background: #080d15;
+  border: 1px solid var(--border, #1f2d40);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.create-project-label,
+.projects-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary, #ff6b00);
+  margin: 0;
+}
+
+.create-project-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-input {
+  flex: 1;
+  background: #0c121c;
+  border: 1px solid var(--border, #1f2d40);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-main, #f1f5f9);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.modal-input::placeholder {
+  color: var(--text-dim, #64748b);
+}
+
+.modal-input:focus {
+  border-color: var(--primary, #ff6b00);
+  box-shadow: 0 0 0 2px var(--primary-subtle, rgba(255, 107, 0, 0.15));
+}
+
+.modal-btn-primary {
+  background: var(--primary, #ff6b00);
+  color: #000000;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.modal-btn-primary:hover {
+  background: var(--primary-hover, #ff8533);
+}
+
+.modal-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.projects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1px;
+  box-sizing: border-box;
+}
+
+.project-item {
+  background: #080d15;
+  border: 1px solid var(--border, #1f2d40);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.project-item:hover {
+  background: #0d1522;
+  border-color: var(--accent-cyan, #38bdf8);
+}
+
+.project-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.project-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main, #f1f5f9);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-item-meta {
+  font-size: 11px;
+  color: var(--text-dim, #64748b);
+  font-family: var(--font-mono, monospace);
+}
+
+.project-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.project-item-btn {
+  background: #0f1c2e;
+  border: 1px solid #1e3a5f;
+  color: var(--accent-cyan, #38bdf8);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.project-item-btn:hover {
+  background: #162b47;
+  border-color: var(--accent-cyan, #38bdf8);
+  color: #ffffff;
+}
+
+.project-item-btn.delete-btn {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim, #64748b);
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+.project-item-btn.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red, #ef4444);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.empty-projects-msg {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted, #94a3b8);
+  font-size: 12.5px;
+  background: #080d15;
+  border-radius: 6px;
+  border: 1px dashed var(--border, #1f2d40);
+}
+
+/* Custom In-App Prompt & Confirm Modal (Styled in Project Theme) */
+.ide-dialog-card {
+  background: #0d1522;
+  border: 1px solid var(--border-light, #2d3f59);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--text-main, #f1f5f9);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  animation: dialogPopIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes dialogPopIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.ide-dialog-header {
+  padding: 14px 18px;
+  background: #111b2b;
+  border-bottom: 1px solid var(--border, #1f2d40);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ide-dialog-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ide-dialog-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ide-dialog-message {
+  font-size: 13px;
+  color: var(--text-main, #e6edf3);
+  line-height: 1.45;
+}
+
+.ide-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.dialog-btn {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.dialog-btn-cancel {
+  background: #161f2e;
+  border: 1px solid var(--border, #1f2d40);
+  color: var(--text-muted, #94a3b8);
+}
+
+.dialog-btn-cancel:hover {
+  background: #212d40;
+  color: #ffffff;
+  border-color: #374b63;
+}
+
+.ide-dialog-input {
+  width: 100%;
+  background: #080d15;
+  border: 1px solid var(--border-light, #2d3f59);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-family: var(--font-mono, "JetBrains Mono", "Fira Code", monospace);
+  outline: none;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.ide-dialog-input::placeholder {
+  color: #64748b;
+  font-family: var(--font-sans, sans-serif);
+}
+
+.ide-dialog-input:focus {
+  border-color: var(--primary, #ff6b00);
+  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
+  background: #0b131f;
+}
+
+.dialog-btn-primary,
+.dialog-btn-submit {
+  background: var(--primary, #ff6b00);
+  color: #000000;
+  border: 1px solid var(--primary, #ff6b00);
+  font-weight: 800;
+}
+
+.dialog-btn-primary:hover,
+.dialog-btn-submit:hover {
+  background: var(--primary-hover, #ff8533);
+  border-color: var(--primary-hover, #ff8533);
+}
+
+.dialog-btn-primary:active,
+.dialog-btn-submit:active {
+  transform: scale(0.98);
+}
+
+.dialog-btn-danger {
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+}
+
+.dialog-btn:focus-visible,
+.project-item-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.dialog-btn:active,
+.project-item-btn:active {
+  transform: scale(0.97);
+}
+
+.dialog-btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* ===================================================
+   Custom Python input() Modal Dialog Styling
+   =================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.custom-input-card {
+  background: #0d1522;
+  border: 1px solid var(--border-light, #2d3f59);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScaleIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-main, #f1f5f9);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  box-sizing: border-box;
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.custom-input-header {
+  padding: 16px 20px;
+  background: #111b2b;
+  border-bottom: 1px solid var(--border, #1f2d40);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.custom-input-icon {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-input-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.custom-input-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-cyan, #38bdf8);
+  letter-spacing: 0.5px;
+}
+
+.custom-input-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+.custom-input-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #0d1522;
+}
+
+.custom-input-field-wrap {
+  width: 100%;
+}
+
+.custom-input-field {
+  width: 100%;
+  height: 38px;
+  background: #080d15;
+  border: 1px solid var(--border, #1f2d40);
+  border-radius: 6px;
+  padding: 0 12px;
+  color: #ffffff;
+  font-family: var(--font-mono, 'Fira Code', 'JetBrains Mono', Consolas, monospace);
+  font-size: 13.5px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.custom-input-field:focus {
+  border-color: var(--accent-cyan, #38bdf8);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+.custom-input-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.custom-input-btn {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  user-select: none;
+}
+
+.custom-input-btn.btn-cancel {
+  background: #161f2e;
+  border: 1px solid var(--border, #1f2d40);
+  color: var(--text-muted, #94a3b8);
+}
+
+.custom-input-btn.btn-cancel:hover {
+  background: #212d40;
+  color: #ffffff;
+  border-color: #374b63;
+}
+
+.custom-input-btn.btn-submit {
+  background: var(--primary, #ff6b00);
+  color: #000000;
+  border: none;
+  font-weight: 800;
+}
+
+.custom-input-btn.btn-submit:hover {
+  background: var(--primary-hover, #ff8533);
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.35);
+}
+
+.dialog-btn-danger:hover {
+  background: #ef4444;
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Web IDE — Песочница</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Design System & UI Kit Modules -->
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/buttons.css">
+  <link rel="stylesheet" href="styles/toasts.css">
+
+  <!-- IDE CSS Modules -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/sidebar.css">
+  <link rel="stylesheet" href="styles/editor.css">
+  <link rel="stylesheet" href="styles/terminal.css">
+  <link rel="stylesheet" href="styles/modal.css">
+</head>
+<body class="ide-body">
+
+  <!-- Top App Navigation / Toolbar -->
+  <header class="ide-navbar">
+    <div class="nav-brand-section">
+      <a href="index.html" class="nav-back-link" id="navBackBtn" title="Вернуться назад">
+        <span class="back-arrow">←</span>
+        <span class="brand-text">Назад</span>
+      </a>
+      <span class="nav-separator">/</span>
+      <div class="project-title-box">
+        <span id="headerProjectName" class="project-name-display" contenteditable="true" spellcheck="false" title="Нажмите, чтобы переименовать проект">Мой проект</span>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <button id="exportZipBtn" class="top-nav-btn btn-action" title="Скачать проект (.zip)">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+        </svg>
+        <span>Экспорт</span>
+      </button>
+
+      <label class="top-nav-btn btn-action import-zip-label" title="Импортировать .zip или .py">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+          <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+        </svg>
+        <span>Импорт</span>
+        <input type="file" id="importFileInput" accept=".zip,.py" style="display: none;">
+      </label>
+    </div>
+
+    <!-- Center Search Bar: Files, Folders & Content Search -->
+    <div class="nav-search-section" id="navSearchContainer">
+      <div class="nav-search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+        </svg>
+        <input
+          type="text"
+          id="globalSearchInput"
+          class="nav-search-input"
+          placeholder="Поиск по файлам, папкам и коду..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <div class="search-shortcuts-badge">
+          <kbd>Ctrl</kbd><kbd>P</kbd>
+        </div>
+        <button id="clearSearchBtn" class="search-clear-btn" style="display: none;" title="Очистить поиск">×</button>
+      </div>
+
+      <!-- Search Results Dropdown -->
+      <div id="searchResultsDropdown" class="search-results-dropdown" style="display: none;">
+        <div class="search-filters-bar">
+          <button class="search-filter-chip active" data-filter="all">Все</button>
+          <button class="search-filter-chip" data-filter="files">📄 Файлы</button>
+          <button class="search-filter-chip" data-filter="folders">📁 Папки</button>
+          <button class="search-filter-chip" data-filter="content">🔍 В коде</button>
+          <span id="searchResultsCount" class="search-results-count"></span>
+        </div>
+        <div id="searchResultsList" class="search-results-list"></div>
+      </div>
+    </div>
+
+    <!-- Right Controls: Save status, Format, Step, Stop, Run -->
+    <div class="nav-actions-section">
+      <span id="saveStatusIndicator" class="save-status-badge" title="Статус сохранения">Сохранено</span>
+
+      <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
+        <span>🪄</span>
+        <span>Формат</span>
+      </button>
+
+      <button id="stepProjectBtn" class="top-nav-btn btn-action" title="Пошаговая отладка и визуализация выполнения (F10)">
+        <span>🪲</span>
+        <span>Отладка</span>
+      </button>
+
+      <button id="stopProjectBtn" class="top-nav-btn btn-stop" style="display: none;" title="Остановить выполнение">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+          <rect x="2.5" y="2.5" width="11" height="11" rx="2"/>
+        </svg>
+        <span>Стоп</span>
+      </button>
+
+      <button id="runProjectBtn" class="top-nav-btn btn-run" title="Запустить /main.py (Ctrl+Enter)">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+          <path d="M4 2.5a.5.5 0 0 1 .77-.42l8.5 5.5a.5.5 0 0 1 0 .84l-8.5 5.5A.5.5 0 0 1 4 13.5v-11z"/>
+        </svg>
+        <span>Запустить</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main IDE Workspace -->
+  <div class="ide-workspace">
+
+    <!-- Left Side Activity Strip (Terminal header & PyCharm style) -->
+    <aside class="ide-side-strip" id="ideSideStrip">
+      <div class="side-strip-top">
+        <button id="stripToggleExplorerBtn" class="side-strip-btn active" title="Проводник файлов (Ctrl+B)">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h3.293a1.5 1.5 0 0 1 1.06.44L8.293 4H13.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9z"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Left Sidebar (Explorer & File Tree) -->
+    <aside class="ide-sidebar" id="ideSidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">ПРОВОДНИК</span>
+        <button id="collapseSidebarBtn" class="sidebar-collapse-btn" title="Свернуть проводник (Ctrl+B)">
+          <svg class="sidebar-header-arrow" viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+            <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Project Section Header with File/Folder Creation Icons -->
+      <div class="sidebar-section-header">
+        <div class="section-header-left">
+          <svg class="section-arrow" viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+            <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+          <span class="section-title-text">ПРОЕКТ</span>
+        </div>
+        <div class="section-actions">
+          <button id="newFileBtn" class="section-tool-btn" title="Создать файл">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+              <path d="M9 1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6l-5-5zm4 12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h4v4h4v7z"/>
+              <path d="M8 8a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12.5a.5.5 0 0 1-1 0V11H6a.5.5 0 0 1 0-1h1.5V8.5A.5.5 0 0 1 8 8z"/>
+            </svg>
+          </button>
+          <button id="newFolderBtn" class="section-tool-btn" title="Создать папку">
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+              <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h3.293a1.5 1.5 0 0 1 1.06.44L8.293 4H13.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9z"/>
+              <path d="M7.5 7.5a.5.5 0 0 1 .5.5v1.5H9.5a.5.5 0 0 1 0 1H8V12a.5.5 0 0 1-1 0v-1.5H5.5a.5.5 0 0 1 0-1H7V8a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- File Tree Container -->
+      <div id="fileExplorerContainer" class="file-explorer-tree">
+        <!-- Rendered dynamically by projectExplorer.js -->
+      </div>
+    </aside>
+
+    <!-- Resizer: Sidebar to Editor -->
+    <div class="pane-resizer resizer-horizontal" id="sidebarResizer"></div>
+
+    <!-- Center + Bottom Work Area -->
+    <main class="ide-main-area">
+
+      <!-- Editor Section (Tabs + Monaco/CodeMirror) -->
+      <section class="ide-editor-section">
+        <!-- Tabs Header Bar -->
+        <div class="editor-tabs-bar" id="editorTabsBar">
+          <button id="expandSidebarBtn" class="editor-expand-sidebar-btn" style="display: none;" title="Показать проводник (Ctrl+B)">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+              <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 0v12h9a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H5zM4 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h2V2z"/>
+            </svg>
+            <span>Проводник</span>
+          </button>
+          <!-- Rendered dynamically by tabManager.js -->
+        </div>
+
+        <!-- Editor Container -->
+        <div class="editor-container" id="editorContainer">
+          <div id="codeMirrorRoot" class="cm-root"></div>
+        </div>
+      </section>
+
+      <!-- Bottom Terminal Section with Full-Width Resizer Header -->
+      <section class="ide-terminal-section" id="ideTerminalSection">
+        <div class="terminal-header" id="terminalHeader">
+          <div class="terminal-title-container">
+            <span class="terminal-drag-handle" title="Потяните для изменения высоты">⠿</span>
+            <span class="term-tab active">
+              <span class="term-tab-icon" id="termTabIcon">🖥️</span>
+              <span id="termTabTitle">Терминал</span>
+            </span>
+          </div>
+
+          <div class="terminal-actions">
+            <button id="clearTerminalBtn" class="term-action-btn" title="Очистить вывод">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+              </svg>
+              <span>Очистить</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Output Screen -->
+        <div class="terminal-body" id="terminalBody">
+          <pre id="terminalOutput" class="terminal-output-code"></pre>
+        </div>
+
+        <!-- Step-by-Step Visualizer View (Exact Lesson Reference) -->
+        <div id="debugViewBody" class="debug-view-body" style="display: none;">
+          <!-- Top Step Status Banner with Controls -->
+          <div id="debugEventBanner" class="debug-event-banner">
+            <div class="debug-event-info">
+              <span id="debugEventIcon">📍</span>
+              <span id="debugEventText">Выполнение строки 1</span>
+            </div>
+            <div id="ideDebugControls" class="debug-controls-header debug-banner-controls">
+              <button id="debugFirstBtn" class="debug-nav-btn" title="В начало (Home)">⏮</button>
+              <button id="debugPrevBtn" class="debug-nav-btn" title="Шаг назад (← / Shift+F10)">◀ Назад</button>
+              <span id="debugStepInfo" class="debug-step-badge">Шаг 1 из 1</span>
+              <button id="debugNextBtn" class="debug-nav-btn primary" title="Шаг вперёд (→ / F10)">Вперёд ▶</button>
+              <button id="debugLastBtn" class="debug-nav-btn" title="В конец (End)">⏭</button>
+              <button id="debugExitBtn" class="debug-nav-btn exit" title="Выйти из режима отладки (Esc)">⏹ Завершить</button>
+            </div>
+          </div>
+
+          <div class="debug-panels-grid">
+            <!-- Left Panel: Variables & Memory Inspector -->
+            <div class="debug-vars-panel">
+              <div class="debug-panel-title">
+                <span>📦 ПЕРЕМЕННЫЕ В ПАМЯТИ</span>
+                <span id="debugScopeBadge" class="debug-scope-badge">Глобальная область</span>
+              </div>
+              <div id="debugVarsContainer" class="debug-vars-container">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+
+            <!-- Right Panel: Step Console Output -->
+            <div class="debug-output-panel">
+              <div class="debug-panel-title">
+                <span>🖥️ ВЫВОД В КОНСОЛЬ (К ЭТОМУ ШАГУ)</span>
+              </div>
+              <pre id="debugOutputText" class="debug-step-stdout"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal: Python input() Custom Dialog -->
+  <div id="customInputModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card custom-input-card">
+      <div class="custom-input-header">
+        <span class="custom-input-icon">⌨️</span>
+        <div class="custom-input-header-text">
+          <span class="custom-input-tag">Python input()</span>
+          <h3 id="inputModalPromptText" class="custom-input-title">Введите значение:</h3>
+        </div>
+      </div>
+      <form id="customInputForm" class="custom-input-body">
+        <div class="custom-input-field-wrap">
+          <input type="text" id="customInputField" class="custom-input-field" placeholder="Ваш ответ..." autocomplete="off">
+        </div>
+        <div class="custom-input-actions">
+          <button type="button" id="customInputCancelBtn" class="custom-input-btn btn-cancel">Отмена (Esc)</button>
+          <button type="submit" id="customInputSubmitBtn" class="custom-input-btn btn-submit">Продолжить ↵</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Entry Point Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+/* styles/buttons.css - Unified UI Kit Button System */
+
+/* Base Button Reset & Standards */
+.btn,
+.top-nav-btn,
+.modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 13px;
+  height: 30px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+  font-family: inherit;
+  box-sizing: border-box;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  outline: none;
+}
+
+.btn svg,
+.top-nav-btn svg,
+.modal-btn svg {
+  flex-shrink: 0;
+}
+
+/* Accessibility: Focus Visible */
+.btn:focus-visible,
+.top-nav-btn:focus-visible,
+.modal-btn:focus-visible,
+.modal-close-btn:focus-visible,
+.search-clear-btn:focus-visible,
+.search-filter-chip:focus-visible,
+.icon-btn:focus-visible,
+.nav-back-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Tactile Active Pressed State */
+.btn:active:not(:disabled),
+.top-nav-btn:active:not(:disabled),
+.modal-btn:active:not(:disabled),
+.search-filter-chip:active:not(:disabled),
+.nav-back-link:active {
+  transform: scale(0.97);
+}
+
+/* Disabled State */
+.btn:disabled,
+.top-nav-btn:disabled,
+.modal-btn:disabled,
+.search-filter-chip:disabled,
+.btn[aria-disabled="true"],
+.top-nav-btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary Button (Run, Confirm, Submit) */
+.btn-primary,
+.top-nav-btn.btn-run,
+.modal-btn-primary {
+  background: var(--primary);
+  color: var(--text-inverse);
+  border: 1px solid transparent;
+  font-weight: 800;
+  box-shadow: var(--shadow-primary-sm);
+}
+
+.btn-primary:hover:not(:disabled),
+.top-nav-btn.btn-run:hover:not(:disabled),
+.modal-btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-primary-lg);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled),
+.top-nav-btn.btn-run:active:not(:disabled),
+.modal-btn-primary:active:not(:disabled) {
+  transform: scale(0.97) translateY(0);
+}
+
+/* Secondary / Action Button */
+.btn-secondary,
+.top-nav-btn.btn-action,
+.modal-btn-secondary {
+  background: #111b2b;
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-secondary:hover:not(:disabled),
+.top-nav-btn.btn-action:hover:not(:disabled),
+.modal-btn-secondary:hover:not(:disabled) {
+  background: var(--border-light);
+  border-color: var(--primary);
+  color: var(--text-bright);
+}
+
+/* Danger / Stop Button */
+.btn-danger,
+.top-nav-btn.btn-stop,
+.modal-btn-danger {
+  background: var(--accent-red-subtle);
+  color: var(--accent-red);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  font-weight: 700;
+}
+
+.btn-danger:hover:not(:disabled),
+.top-nav-btn.btn-stop:hover:not(:disabled),
+.modal-btn-danger:hover:not(:disabled) {
+  background: var(--accent-red-hover);
+  color: var(--text-bright);
+  border-color: var(--accent-red-hover);
+}
+
+/* Icon Buttons */
+.btn-icon,
+.icon-btn {
+  padding: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.btn-icon:hover:not(:disabled),
+.icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-bright);
+}
+
+.btn-icon:active:not(:disabled),
+.icon-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-bright);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.95);
+}
