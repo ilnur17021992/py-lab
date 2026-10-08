@@ -130,15 +130,15 @@
 
 /* Collapsed Sidebar State */
 .ide-sidebar.collapsed {
-  display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  border-right: none !important;
+  display: none;
+  width: 0;
+  min-width: 0;
+  max-width: 0;
+  border-right: none;
 }
 
 .pane-resizer.resizer-horizontal.collapsed {
-  display: none !important;
+  display: none;
 }
 
 /* Expand Sidebar Buttons */
@@ -236,7 +236,7 @@
 
 .sidebar-section-header.collapsed + #fileExplorerContainer,
 .file-explorer-tree.collapsed {
-  display: none !important;
+  display: none;
 }
 
 .section-title-text {
@@ -307,8 +307,8 @@
 }
 
 .tree-item.active {
-  background: var(--primary-subtle, rgba(255, 107, 0, 0.14)) !important;
-  color: var(--primary, #ff6b00) !important;
+  background: var(--primary-subtle, rgba(255, 107, 0, 0.14));
+  color: var(--primary, #ff6b00);
   font-weight: 600;
   border: 1px solid rgba(255, 107, 0, 0.35);
 }
@@ -379,13 +379,13 @@
 }
 
 .tree-item.drag-target-folder {
-  background: rgba(255, 107, 0, 0.18) !important;
+  background: rgba(255, 107, 0, 0.18);
   outline: 1px dashed var(--primary);
   border-radius: 4px;
 }
 
 .tree-item.drag-target-file {
-  background: rgba(56, 189, 248, 0.18) !important;
+  background: rgba(56, 189, 248, 0.18);
   outline: 1px dashed rgba(56, 189, 248, 0.6);
   border-radius: 4px;
 }

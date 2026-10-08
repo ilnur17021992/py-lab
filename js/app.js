@@ -9,6 +9,7 @@ import { TerminalUI } from './ui/terminal.js';
 import { WorkerBridge } from './worker/workerBridge.js';
 import { runnerManager } from './runner/runnerManager.js';
 import { e2bSettingsModal } from './ui/components/e2bSettingsModal.js';
+import { showPromptDialog } from './ui/components/dialogs.js';
 import { toast } from './ui/components/toast.js';
 import { zipExporter } from './utils/zipExporter.js';
 import { projectModal } from './projectModal.js';
@@ -221,12 +222,18 @@ export class PythonWebIDEApp {
       const cancelBtn = document.getElementById('customInputCancelBtn');
 
       if (!modal) {
-        const val = window.prompt(prompt || 'Введите значение:');
-        if (val === null) {
-          this.workerBridge.sendInputResponse(id, '', true);
-        } else {
-          this.workerBridge.sendInputResponse(id, val, false);
-        }
+        showPromptDialog({
+          title: 'Ввод Python input()',
+          icon: '⌨️',
+          message: prompt || 'Введите значение:',
+          placeholder: 'Введите текст...'
+        }).then((val) => {
+          if (val === null) {
+            this.workerBridge.sendInputResponse(id, '', true);
+          } else {
+            this.workerBridge.sendInputResponse(id, val, false);
+          }
+        });
         return;
       }
 
@@ -710,6 +717,7 @@ export class PythonWebIDEApp {
             lastExpandedWidth = curWidth;
           }
           sidebar.classList.add('collapsed');
+          sidebar.style.width = ''; // Clear inline style so CSS class takes full control
           sidebarResizer.classList.add('collapsed');
           if (stripToggleExplorerBtn) {
             stripToggleExplorerBtn.classList.remove('active');
@@ -765,6 +773,9 @@ export class PythonWebIDEApp {
           const savedCollapsed = localStorage.getItem(STORAGE_KEY_SIDEBAR_COLLAPSED);
           if (savedCollapsed === 'true') {
             setSidebarCollapsed(true);
+          } else if (window.innerWidth <= 768) {
+            // On mobile, collapse sidebar by default so editor is immediately visible
+            setSidebarCollapsed(true);
           } else {
             if (stripToggleExplorerBtn) stripToggleExplorerBtn.classList.add('active');
             if (toggleSidebarNavBtn) toggleSidebarNavBtn.classList.add('active');
@@ -772,6 +783,23 @@ export class PythonWebIDEApp {
         } catch (e) {}
       } else if (this.options.collapseSidebarOnInit) {
         setSidebarCollapsed(true);
+      }
+
+      const ideSidebarBackdrop = document.getElementById('ideSidebarBackdrop');
+      if (ideSidebarBackdrop) {
+        ideSidebarBackdrop.addEventListener('click', () => setSidebarCollapsed(true));
+      }
+
+      const fileExplorerContainer = document.getElementById('fileExplorerContainer');
+      if (fileExplorerContainer) {
+        fileExplorerContainer.addEventListener('click', (e) => {
+          if (window.innerWidth <= 768) {
+            const fileItem = e.target.closest('.tree-item:not(.tree-folder-item)');
+            if (fileItem && !e.target.closest('.tree-item-actions')) {
+              setSidebarCollapsed(true);
+            }
+          }
+        });
       }
 
       if (collapseSidebarBtn) {
@@ -966,7 +994,10 @@ export class PythonWebIDEApp {
         }
       };
 
+      let lastTouchTime = 0;
+
       terminalHeader.addEventListener('mousedown', (e) => {
+        if (Date.now() - lastTouchTime < 600) return;
         if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
         onDragStart(e.clientY);
         e.preventDefault();
@@ -979,6 +1010,35 @@ export class PythonWebIDEApp {
       });
 
       document.addEventListener('mouseup', onDragEnd);
+
+      terminalHeader.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+        if (e.touches && e.touches.length === 1) {
+          lastTouchTime = Date.now();
+          onDragStart(e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (isResizingY && e.touches && e.touches.length === 1) {
+          onDragMove(e.touches[0].clientY);
+          if (e.cancelable) {
+            e.preventDefault();
+          }
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchend', () => {
+        if (isResizingY) {
+          onDragEnd();
+        }
+      });
+
+      document.addEventListener('touchcancel', () => {
+        if (isResizingY) {
+          onDragEnd();
+        }
+      });
     }
   }
 

@@ -152,23 +152,25 @@
 .monaco-editor-hover,
 .context-view,
 .monaco-editor .zone-widget {
-  z-index: 100000 !important;
+  z-index: 100000;
 }
 
 .monaco-hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 /* Monaco Debug Step Highlight (Lessons Reference) */
+.monaco-editor .monaco-debug-active-line,
 .monaco-debug-active-line {
-  background-color: rgba(37, 99, 235, 0.28) !important;
-  border-left: 3px solid #38bdf8 !important;
+  background-color: rgba(37, 99, 235, 0.28);
+  border-left: 3px solid #38bdf8;
 }
 
+.monaco-editor .monaco-debug-active-glyph,
 .monaco-debug-active-glyph {
-  background: #38bdf8 !important;
-  width: 8px !important;
-  height: 8px !important;
+  background: #38bdf8;
+  width: 8px;
+  height: 8px;
   margin-left: 5px;
   margin-top: 5px;
   border-radius: 50%;

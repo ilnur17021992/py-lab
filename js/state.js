@@ -368,37 +368,63 @@ class AppState extends EventTarget {
     }
   }
 
+  _storageGet(key, fallback = null) {
+    try {
+      return localStorage.getItem(`learn_py_${key}`) ?? localStorage.getItem(`py_lab_${key}`) ?? fallback;
+    } catch (e) {
+      console.warn('LocalStorage get failed:', e);
+      return fallback;
+    }
+  }
+
+  _storageSet(key, value) {
+    try {
+      localStorage.setItem(`learn_py_${key}`, value);
+    } catch (e) {
+      console.warn('LocalStorage set failed:', e);
+    }
+  }
+
+  _storageRemove(key) {
+    try {
+      localStorage.removeItem(`learn_py_${key}`);
+      localStorage.removeItem(`py_lab_${key}`);
+    } catch (e) {
+      console.warn('LocalStorage remove failed:', e);
+    }
+  }
+
   getRuntime() {
-    return localStorage.getItem('py_lab_runtime') || 'pyodide';
+    return this._storageGet('runtime') || 'pyodide';
   }
 
   setRuntime(runtime) {
     if (runtime !== 'pyodide' && runtime !== 'e2b') return;
-    localStorage.setItem('py_lab_runtime', runtime);
+    this._storageSet('runtime', runtime);
     this.emitChange('runtime-changed', { runtime });
   }
 
   getE2BApiKey() {
-    return localStorage.getItem('py_lab_e2b_api_key') || '';
+    return this._storageGet('e2b_api_key') || '';
   }
 
   setE2BApiKey(key) {
     const trimmed = (key || '').trim();
     if (trimmed) {
-      localStorage.setItem('py_lab_e2b_api_key', trimmed);
+      this._storageSet('e2b_api_key', trimmed);
     } else {
-      localStorage.removeItem('py_lab_e2b_api_key');
+      this._storageRemove('e2b_api_key');
     }
     this.emitChange('e2b-key-changed', { hasKey: !!trimmed });
   }
 
   getE2BTimeout() {
-    const val = localStorage.getItem('py_lab_e2b_timeout');
+    const val = this._storageGet('e2b_timeout');
     return val !== null ? Number(val) : 300000;
   }
 
   setE2BTimeout(ms) {
-    localStorage.setItem('py_lab_e2b_timeout', String(ms));
+    this._storageSet('e2b_timeout', String(ms));
     this.emitChange('e2b-timeout-changed', { timeout: ms });
   }
 }

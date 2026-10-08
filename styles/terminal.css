@@ -28,6 +28,7 @@
   letter-spacing: 0.5px;
   cursor: row-resize;
   user-select: none;
+  touch-action: none;
   position: relative;
   transition: background 0.15s ease, border-color 0.15s ease;
   gap: 8px;

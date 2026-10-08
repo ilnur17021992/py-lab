@@ -1,6 +1,7 @@
 // js/runner/runnerManager.js - Unified Runner Facade for Pyodide (WASM) and E2B (Cloud Sandbox)
 import { WorkerBridge } from '../worker/workerBridge.js';
 import { E2BRunner } from './e2bRunner.js';
+import { state } from '../state.js';
 
 export class RunnerManager extends EventTarget {
   constructor() {
@@ -8,8 +9,8 @@ export class RunnerManager extends EventTarget {
     this.pyodideRunner = new WorkerBridge();
     this.e2bRunner = new E2BRunner();
 
-    // Default runtime from localStorage or fallback to 'pyodide'
-    this.currentRuntime = localStorage.getItem('py_lab_runtime') || 'pyodide';
+    // Default runtime from reactive state (Single Source of Truth)
+    this.currentRuntime = state.getRuntime();
 
     this.bindRunnerEvents(this.pyodideRunner, 'pyodide');
     this.bindRunnerEvents(this.e2bRunner, 'e2b');
@@ -47,7 +48,7 @@ export class RunnerManager extends EventTarget {
     }
 
     this.currentRuntime = runtime;
-    localStorage.setItem('py_lab_runtime', runtime);
+    state.setRuntime(runtime);
 
     this.dispatchEvent(new CustomEvent('runtime-changed', {
       detail: { runtime }
@@ -72,7 +73,7 @@ export class RunnerManager extends EventTarget {
   run(projectFiles, entryPoint = '/main.py', options = {}) {
     const runner = this.getActiveRunner();
     if (this.currentRuntime === 'e2b') {
-      const apiKey = options.apiKey || localStorage.getItem('py_lab_e2b_api_key') || '';
+      const apiKey = options.apiKey || state.getE2BApiKey() || '';
       if (!apiKey.trim()) {
         this.dispatchEvent(new CustomEvent('e2b-config-required'));
         return;

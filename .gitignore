@@ -28,6 +28,9 @@ venv/
 .venv/
 ENV/
 env/
+
+# Playwright Agent CLI artifacts
+.playwright-cli/
 env.bak/
 venv.bak/
 

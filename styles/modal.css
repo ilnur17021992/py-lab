@@ -13,7 +13,8 @@
   pointer-events: none;
   transition: opacity 0.2s ease;
   padding: 20px;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.active {
@@ -27,7 +28,9 @@
   border-radius: 12px;
   width: 100%;
   max-width: 540px;
+  max-height: calc(100dvh - 24px);
   max-height: 85vh;
+  margin: auto;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.08);
   display: flex;
   flex-direction: column;
@@ -129,6 +132,7 @@
 
 .modal-input {
   flex: 1;
+  min-width: 0;
   background: #0c121c;
   border: 1px solid var(--border, #1f2d40);
   border-radius: 6px;
@@ -454,6 +458,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -463,6 +468,8 @@
   z-index: 99999;
   padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .custom-input-card {
@@ -471,6 +478,9 @@
   border-radius: 12px;
   width: 100%;
   max-width: 460px;
+  max-height: calc(100dvh - 24px);
+  max-height: calc(100vh - 24px);
+  margin: auto;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(56, 189, 248, 0.15);
   display: flex;
   flex-direction: column;
@@ -493,6 +503,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .custom-input-icon {
@@ -530,6 +541,10 @@
   flex-direction: column;
   gap: 16px;
   background: #0d1522;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .custom-input-field-wrap {
@@ -561,6 +576,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .custom-input-btn {
@@ -605,3 +621,62 @@
 .dialog-btn-danger:hover {
   background: #ef4444;
 }
+
+/* ===================================================
+   RESPONSIVE MODAL ADAPTATIONS (<= 540px)
+   =================================================== */
+@media (max-width: 540px) {
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .sandbox-modal,
+  .ide-dialog-card,
+  .custom-input-card {
+    max-width: 100%;
+    max-height: 90dvh;
+    border-radius: 10px;
+  }
+
+  .modal-header,
+  .ide-dialog-header,
+  .custom-input-header {
+    padding: 12px 14px;
+  }
+
+  .modal-title,
+  .ide-dialog-title,
+  .custom-input-title {
+    font-size: 14px;
+  }
+
+  .modal-body,
+  .ide-dialog-body,
+  .custom-input-body {
+    padding: 14px 12px;
+    gap: 12px;
+  }
+
+  .create-project-card {
+    padding: 12px;
+  }
+
+  .create-project-form {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-input {
+    width: 100%;
+    height: 38px;
+    box-sizing: border-box;
+  }
+
+  .modal-btn-primary {
+    width: 100%;
+    height: 38px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+

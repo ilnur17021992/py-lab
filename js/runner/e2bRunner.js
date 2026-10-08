@@ -1,4 +1,5 @@
 // js/runner/e2bRunner.js - Cloud Sandbox Runner using E2B (Firecracker Linux MicroVM)
+import { state } from '../state.js';
 
 export class E2BRunner extends EventTarget {
   constructor() {
@@ -147,9 +148,8 @@ export class E2BRunner extends EventTarget {
     }));
 
     try {
-      const apiKey = options.apiKey || localStorage.getItem('py_lab_e2b_api_key') || '';
-      const timeoutVal = localStorage.getItem('py_lab_e2b_timeout');
-      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : (timeoutVal !== null ? Number(timeoutVal) : 300000);
+      const apiKey = options.apiKey || state.getE2BApiKey() || '';
+      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : state.getE2BTimeout();
 
       const sandbox = await this.getOrCreateSandbox(apiKey, timeoutMs);
 
@@ -266,8 +266,7 @@ export class E2BRunner extends EventTarget {
       }));
     } finally {
       this.isRunning = false;
-      const timeoutVal = localStorage.getItem('py_lab_e2b_timeout');
-      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : (timeoutVal !== null ? Number(timeoutVal) : 300000);
+      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : state.getE2BTimeout();
 
       // If user selected ephemeral VM (0 timeout), immediately kill the sandbox
       if (timeoutMs === 0 && this.sandbox) {

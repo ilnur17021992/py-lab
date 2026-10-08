@@ -1,5 +1,6 @@
 // js/editor.js - Monaco / CodeMirror 6 VS Code Editor Integration
 import { state } from './state.js';
+import { getHoverContents } from './data/pythonDocs.js';
 
 export class EditorManager {
   constructor(containerEl, options = {}) {
@@ -132,6 +133,30 @@ export class EditorManager {
                 );
 
                 return { suggestions };
+              }
+            });
+          }
+
+          // Register Python Hover Tooltips Provider (built-ins, methods, keywords)
+          if (!window._pythonHoverRegistered) {
+            window._pythonHoverRegistered = true;
+            monaco.languages.registerHoverProvider('python', {
+              provideHover: (model, position) => {
+                const word = model.getWordAtPosition(position);
+                if (!word || !word.word) return null;
+
+                const contents = getHoverContents(word.word);
+                if (!contents) return null;
+
+                return {
+                  range: new monaco.Range(
+                    position.lineNumber,
+                    word.startColumn,
+                    position.lineNumber,
+                    word.endColumn
+                  ),
+                  contents: contents
+                };
               }
             });
           }

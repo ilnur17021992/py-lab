@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="styles/terminal.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="styles/modal.css">
+  <link rel="stylesheet" href="styles/responsive.css">
 
   <!-- Prism.js Syntax Highlighting Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -100,14 +101,14 @@
         <div class="nav-progress-bar-bg">
           <div id="catalogProgressFill" class="nav-progress-bar-fill"></div>
         </div>
-        <span id="catalogProgressText" class="nav-progress-text">Прогресс: 0 / 27 (0%)</span>
+        <span id="catalogProgressText" class="nav-progress-text"></span>
       </div>
     </div>
 
     <div class="nav-center">
       <div id="globalSearchBtn" class="nav-search-wrapper" title="Поиск по темам, методам и коду">
         <span class="nav-search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input nav-search-input" placeholder="Поиск по темам, методам и коду...">
+        <input type="text" id="searchInput" class="nav-search-input" placeholder="Поиск по темам, методам и коду...">
       </div>
     </div>
 
@@ -143,11 +144,11 @@
         </p>
         <div class="hero-stats">
           <div class="hero-stat-item">
-            <span class="hero-stat-num">27</span>
+            <span id="heroTopicsCount" class="hero-stat-num">—</span>
             <span class="hero-stat-label">интерактивных тем</span>
           </div>
           <div class="hero-stat-item">
-            <span class="hero-stat-num">100+</span>
+            <span id="heroExamplesCount" class="hero-stat-num">—</span>
             <span class="hero-stat-label">примеров кода</span>
           </div>
           <div class="hero-stat-item">
@@ -204,11 +205,31 @@
   </main>
 
   <!-- VIEW 2: Full-Screen Split Workspace (Left: Theory/Snippets, Right: CodeMirror IDE) -->
-  <div id="workspaceView">
+  <div id="workspaceView" class="tab-theory">
+
+    <!-- Mobile Workspace Tabs Switcher (Visible on <= 768px) -->
+    <div class="workspace-mobile-tabs" id="workspaceMobileTabs">
+      <button type="button" class="mobile-tab-btn mobile-tab-drawer-btn" id="mobileDrawerOpenBtn" title="Открыть список всех тем">
+        <span>📚</span> Темы
+      </button>
+      <button type="button" class="mobile-tab-btn active" data-tab="theory" id="mobileTabTheoryBtn">
+        <span>📖</span> Урок
+      </button>
+      <button type="button" class="mobile-tab-btn" data-tab="editor" id="mobileTabEditorBtn">
+        <span>💻</span> Код
+      </button>
+    </div>
+
+    <!-- Backdrop for mobile drawer -->
+    <div class="workspace-drawer-backdrop" id="workspaceDrawerBackdrop"></div>
 
     <!-- Column 1: Topics Sidebar Menu -->
-    <nav class="workspace-topics-sidebar">
-      <div class="sidebar-title">Содержание</div>
+    <nav class="workspace-topics-sidebar" id="workspaceTopicsSidebar">
+      <div class="sidebar-header-mobile">
+        <span class="sidebar-drawer-title">Содержание</span>
+        <button type="button" class="sidebar-close-mobile" id="mobileDrawerCloseBtn" aria-label="Закрыть содержание">✕</button>
+      </div>
+      <div class="sidebar-title desktop-sidebar-title">Содержание</div>
       <div id="sidebarTopicsList" class="sidebar-topics-list">
         <!-- Injected dynamically -->
       </div>
@@ -285,26 +306,28 @@
             </button>
           </div>
 
-          <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
-            <span>🪄</span>
-            <span>Формат</span>
-          </button>
-          <button id="stepProjectBtn" class="top-nav-btn btn-action" title="Пошаговая отладка и визуализация выполнения (F10)">
-            <span>🪲</span>
-            <span>Отладка</span>
-          </button>
-          <button id="stopProjectBtn" class="top-nav-btn btn-stop" style="display: none;" title="Остановить выполнение">
-            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
-              <rect x="2.5" y="2.5" width="11" height="11" rx="2"/>
-            </svg>
-            <span>Стоп</span>
-          </button>
-          <button id="runProjectBtn" class="top-nav-btn btn-run" title="Запустить /main.py (Ctrl+Enter)">
-            <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
-              <path d="M4 2.5a.5.5 0 0 1 .77-.42l8.5 5.5a.5.5 0 0 1 0 .84l-8.5 5.5A.5.5 0 0 1 4 13.5v-11z"/>
-            </svg>
-            <span>Запустить</span>
-          </button>
+          <div class="nav-actions-right">
+            <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
+              <span>🪄</span>
+              <span>Формат</span>
+            </button>
+            <button id="stepProjectBtn" class="top-nav-btn btn-action" title="Пошаговая отладка и визуализация выполнения (F10)">
+              <span>🪲</span>
+              <span>Отладка</span>
+            </button>
+            <button id="stopProjectBtn" class="top-nav-btn btn-stop" style="display: none;" title="Остановить выполнение">
+              <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+                <rect x="2.5" y="2.5" width="11" height="11" rx="2"/>
+              </svg>
+              <span>Стоп</span>
+            </button>
+            <button id="runProjectBtn" class="top-nav-btn btn-run" title="Запустить /main.py (Ctrl+Enter)">
+              <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+                <path d="M4 2.5a.5.5 0 0 1 .77-.42l8.5 5.5a.5.5 0 0 1 0 .84l-8.5 5.5A.5.5 0 0 1 4 13.5v-11z"/>
+              </svg>
+              <span>Запустить</span>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="styles/editor.css">
   <link rel="stylesheet" href="styles/terminal.css">
   <link rel="stylesheet" href="styles/modal.css">
+  <link rel="stylesheet" href="styles/responsive.css">
 </head>
 <body class="ide-body">
 
@@ -115,29 +116,31 @@
         </button>
       </div>
 
-      <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
-        <span>🪄</span>
-        <span>Формат</span>
-      </button>
+      <div class="nav-actions-right">
+        <button id="formatProjectBtn" class="top-nav-btn btn-action" title="Форматировать код (autopep8 / Shift+Alt+F)">
+          <span>🪄</span>
+          <span>Формат</span>
+        </button>
 
-      <button id="stepProjectBtn" class="top-nav-btn btn-action" title="Пошаговая отладка и визуализация выполнения (F10)">
-        <span>🪲</span>
-        <span>Отладка</span>
-      </button>
+        <button id="stepProjectBtn" class="top-nav-btn btn-action" title="Пошаговая отладка и визуализация выполнения (F10)">
+          <span>🪲</span>
+          <span>Отладка</span>
+        </button>
 
-      <button id="stopProjectBtn" class="top-nav-btn btn-stop" style="display: none;" title="Остановить выполнение">
-        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
-          <rect x="2.5" y="2.5" width="11" height="11" rx="2"/>
-        </svg>
-        <span>Стоп</span>
-      </button>
+        <button id="stopProjectBtn" class="top-nav-btn btn-stop" style="display: none;" title="Остановить выполнение">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+            <rect x="2.5" y="2.5" width="11" height="11" rx="2"/>
+          </svg>
+          <span>Стоп</span>
+        </button>
 
-      <button id="runProjectBtn" class="top-nav-btn btn-run" title="Запустить /main.py (Ctrl+Enter)">
-        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
-          <path d="M4 2.5a.5.5 0 0 1 .77-.42l8.5 5.5a.5.5 0 0 1 0 .84l-8.5 5.5A.5.5 0 0 1 4 13.5v-11z"/>
-        </svg>
-        <span>Запустить</span>
-      </button>
+        <button id="runProjectBtn" class="top-nav-btn btn-run" title="Запустить /main.py (Ctrl+Enter)">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+            <path d="M4 2.5a.5.5 0 0 1 .77-.42l8.5 5.5a.5.5 0 0 1 0 .84l-8.5 5.5A.5.5 0 0 1 4 13.5v-11z"/>
+          </svg>
+          <span>Запустить</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -198,6 +201,9 @@
 
     <!-- Resizer: Sidebar to Editor -->
     <div class="pane-resizer resizer-horizontal" id="sidebarResizer"></div>
+
+    <!-- Mobile Sidebar Drawer Backdrop -->
+    <div class="ide-sidebar-backdrop" id="ideSidebarBackdrop"></div>
 
     <!-- Center + Bottom Work Area -->
     <main class="ide-main-area">

@@ -31,6 +31,8 @@ const topicsGrid = document.getElementById("topicsGrid");
 const catalogTagFilters = document.getElementById("catalogTagFilters");
 const catalogProgressFill = document.getElementById("catalogProgressFill");
 const catalogProgressText = document.getElementById("catalogProgressText");
+const heroTopicsCount = document.getElementById("heroTopicsCount");
+const heroExamplesCount = document.getElementById("heroExamplesCount");
 const sidebarTopicsList = document.getElementById("sidebarTopicsList");
 const topicCategoryText = document.getElementById("topicCategoryText");
 const topicTitleText = document.getElementById("topicTitleText");
@@ -71,9 +73,8 @@ let activeInputRejecter = null;
 window.showCustomInputModal = function (promptText) {
   return new Promise((resolve, reject) => {
     if (!customInputModal) {
-      const val = window.prompt(promptText || "Введите значение:");
-      if (val === null) reject(new Error("Ввод отменен пользователем"));
-      else resolve(val);
+      console.warn("customInputModal element not found in DOM");
+      reject(new Error("Модальное окно ввода недоступно"));
       return;
     }
 
@@ -208,11 +209,26 @@ function updateProgressUI() {
   });
 }
 
+function updateHeroStats() {
+  if (heroTopicsCount) {
+    heroTopicsCount.textContent = TOPICS.length;
+  }
+  if (heroExamplesCount) {
+    const totalExamples = TOPICS.reduce(
+      (sum, t) => sum + (Array.isArray(t.examples) ? t.examples.length : 0),
+      0
+    );
+    heroExamplesCount.textContent = `${totalExamples}+`;
+  }
+}
+
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", async () => {
   TOPICS = await courseSdk.init();
   window.TOPICS = TOPICS;
+  updateHeroStats();
   renderCatalogTagFilters();
+  initCatalogTagsScroll();
   renderCatalog();
   renderSidebar();
   initBackgroundCanvas();
@@ -284,6 +300,7 @@ function getUniqueCatalogTags() {
 
 function renderCatalogTagFilters() {
   if (!catalogTagFilters) return;
+  const prevScrollLeft = catalogTagFilters.scrollLeft;
   catalogTagFilters.innerHTML = "";
 
   const uniqueTags = getUniqueCatalogTags();
@@ -299,6 +316,7 @@ function renderCatalogTagFilters() {
   const isAllActive = selectedCatalogTag === "all";
   allBtn.className = `catalog-tag-pill ${isAllActive ? "active" : ""}`;
   allBtn.setAttribute("aria-pressed", isAllActive ? "true" : "false");
+  allBtn.dataset.tag = "all";
   allBtn.innerHTML = `<span>Все</span> <span class="tag-count">${TOPICS.length}</span>`;
   allBtn.title = "Показать все темы";
   allBtn.addEventListener("click", () => setSelectedCatalogTag("all"));
@@ -311,6 +329,7 @@ function renderCatalogTagFilters() {
     const isTagActive = selectedCatalogTag === tag;
     btn.className = `catalog-tag-pill ${isTagActive ? "active" : ""}`;
     btn.setAttribute("aria-pressed", isTagActive ? "true" : "false");
+    btn.dataset.tag = tag;
     btn.innerHTML = `<span>#${escapeHtml(tag)}</span> <span class="tag-count">${count}</span>`;
     btn.title = `Фильтровать по тегу #${tag}`;
     btn.addEventListener("click", () => {
@@ -318,13 +337,132 @@ function renderCatalogTagFilters() {
     });
     catalogTagFilters.appendChild(btn);
   });
+
+  if (prevScrollLeft > 0) {
+    catalogTagFilters.scrollLeft = prevScrollLeft;
+  }
+}
+
+function updateCatalogTagPillsActiveState() {
+  if (!catalogTagFilters) return false;
+  const pills = catalogTagFilters.querySelectorAll(".catalog-tag-pill");
+  if (pills.length === 0) return false;
+  pills.forEach((btn) => {
+    const isTag = btn.dataset.tag;
+    const isActive = isTag === "all" ? selectedCatalogTag === "all" : selectedCatalogTag === isTag;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+  return true;
+}
+
+function scrollActivePillIntoView(pillEl) {
+  if (!pillEl || !catalogTagFilters) return;
+  if (catalogTagFilters.scrollWidth <= catalogTagFilters.clientWidth) return;
+
+  const containerRect = catalogTagFilters.getBoundingClientRect();
+  const pillRect = pillEl.getBoundingClientRect();
+  const padding = 16;
+
+  if (pillRect.left < containerRect.left + padding) {
+    const offset = pillRect.left - containerRect.left - padding;
+    catalogTagFilters.scrollTo({
+      left: Math.max(0, catalogTagFilters.scrollLeft + offset),
+      behavior: "smooth"
+    });
+  } else if (pillRect.right > containerRect.right - padding) {
+    const offset = pillRect.right - containerRect.right + padding;
+    catalogTagFilters.scrollTo({
+      left: Math.max(0, catalogTagFilters.scrollLeft + offset),
+      behavior: "smooth"
+    });
+  }
 }
 
 function setSelectedCatalogTag(tag) {
   const normTag = tag ? String(tag).trim().toLowerCase() : "all";
   selectedCatalogTag = normTag;
-  renderCatalogTagFilters();
+  if (!updateCatalogTagPillsActiveState()) {
+    renderCatalogTagFilters();
+  }
+  const activePill = Array.from(catalogTagFilters?.querySelectorAll(".catalog-tag-pill") || [])
+    .find((btn) => btn.dataset.tag === normTag);
+  if (activePill) {
+    scrollActivePillIntoView(activePill);
+  }
   renderCatalog(searchInput ? searchInput.value : "");
+}
+
+let catalogTagScrollInitialized = false;
+function initCatalogTagsScroll() {
+  if (!catalogTagFilters || catalogTagScrollInitialized) return;
+  catalogTagScrollInitialized = true;
+
+  const scrollContainer = catalogTagFilters;
+  const dividerContainer = catalogTagFilters.closest(".catalog-section-divider") || catalogTagFilters;
+
+  // 1. Mouse wheel horizontal scrolling:
+  // Rolling the mouse wheel over the tags line immediately scrolls the tags horizontally.
+  const handleWheel = (e) => {
+    if (scrollContainer.scrollWidth <= scrollContainer.clientWidth) return;
+    if (Math.abs(e.deltaY) >= Math.abs(e.deltaX) && e.deltaY !== 0) {
+      e.preventDefault();
+      scrollContainer.scrollLeft += e.deltaY;
+    }
+  };
+
+  scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
+  if (dividerContainer !== scrollContainer) {
+    dividerContainer.addEventListener("wheel", handleWheel, { passive: false });
+  }
+
+  // 2. Drag-to-scroll with mouse across the entire line:
+  let isDown = false;
+  let startX = 0;
+  let scrollLeft = 0;
+  let hasMoved = false;
+
+  const onPointerDown = (e) => {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    isDown = true;
+    hasMoved = false;
+    const pageX = e.pageX ?? e.clientX ?? 0;
+    startX = pageX - scrollContainer.offsetLeft;
+    scrollLeft = scrollContainer.scrollLeft;
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDown || e.pointerType !== "mouse") return;
+    const pageX = e.pageX ?? e.clientX ?? 0;
+    const x = pageX - scrollContainer.offsetLeft;
+    const walk = x - startX;
+    if (Math.abs(walk) > 4) {
+      hasMoved = true;
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const onPointerUp = (e) => {
+    if (e && e.pointerType !== "mouse") return;
+    isDown = false;
+  };
+
+  dividerContainer.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+
+  scrollContainer.addEventListener(
+    "click",
+    (e) => {
+      if (hasMoved) {
+        e.preventDefault();
+        e.stopPropagation();
+        hasMoved = false;
+      }
+    },
+    true
+  );
 }
 
 // Render Catalog Grid View
@@ -536,6 +674,16 @@ function openTopicWorkspace(topicId, updateHash = true) {
   topicTitleText.textContent = `${topic.icon} ${topic.title}`;
   theoryBlock.innerHTML = topic.theory;
 
+  // Ensure any rendered tables are wrapped for horizontal scroll on touch/mobile
+  theoryBlock.querySelectorAll(".theory-table").forEach((table) => {
+    if (!table.parentElement.classList.contains("theory-table-wrap")) {
+      const wrap = document.createElement("div");
+      wrap.className = "theory-table-wrap";
+      table.parentNode.insertBefore(wrap, table);
+      wrap.appendChild(table);
+    }
+  });
+
   // Update completion status button in header
   updateProgressUI();
 
@@ -645,6 +793,9 @@ function loadCodeIntoIde(code, saveToStorage = true) {
   if (embeddedIDE) {
     embeddedIDE.setCode(code);
   }
+  if (window.innerWidth <= 768 && window.switchMobileWorkspaceTab) {
+    window.switchMobileWorkspaceTab("editor");
+  }
   if (saveToStorage && currentTopic) {
     saveTopicCode(currentTopic.id, code);
   } else {
@@ -656,6 +807,9 @@ function loadCodeIntoIde(code, saveToStorage = true) {
 function showCatalogView(updateHash = true) {
   workspaceView.classList.remove("active");
   catalogView.style.display = "block";
+  if (window.switchMobileWorkspaceTab) {
+    window.switchMobileWorkspaceTab("theory");
+  }
   if (updateHash) {
     history.pushState(null, null, window.location.pathname + window.location.search);
   }
@@ -951,6 +1105,91 @@ function setupEventListeners() {
       }
     }
   });
+
+  initMobileWorkspaceNavigation();
+}
+
+// Mobile Workspace Tabs and Drawer Navigation
+function initMobileWorkspaceNavigation() {
+  const theoryTabBtn = document.getElementById("mobileTabTheoryBtn");
+  const editorTabBtn = document.getElementById("mobileTabEditorBtn");
+  const drawerOpenBtn = document.getElementById("mobileDrawerOpenBtn");
+  const drawerCloseBtn = document.getElementById("mobileDrawerCloseBtn");
+  const drawerBackdrop = document.getElementById("workspaceDrawerBackdrop");
+  const sidebar = document.getElementById("workspaceTopicsSidebar");
+
+  function setMobileTab(tab) {
+    if (!workspaceView) return;
+    if (tab === "theory") {
+      workspaceView.classList.add("tab-theory");
+      workspaceView.classList.remove("tab-editor");
+      if (theoryTabBtn) theoryTabBtn.classList.add("active");
+      if (editorTabBtn) editorTabBtn.classList.remove("active");
+    } else {
+      workspaceView.classList.remove("tab-theory");
+      workspaceView.classList.add("tab-editor");
+      if (theoryTabBtn) theoryTabBtn.classList.remove("active");
+      if (editorTabBtn) editorTabBtn.classList.add("active");
+      // Trigger editor layout recalculation
+      setTimeout(() => {
+        if (embeddedIDE && embeddedIDE.editor && embeddedIDE.editor.editorInstance) {
+          embeddedIDE.editor.editorInstance.layout();
+        }
+      }, 60);
+    }
+  }
+
+  window.switchMobileWorkspaceTab = setMobileTab;
+
+  if (theoryTabBtn) {
+    theoryTabBtn.addEventListener("click", () => setMobileTab("theory"));
+  }
+  if (editorTabBtn) {
+    editorTabBtn.addEventListener("click", () => setMobileTab("editor"));
+  }
+
+  function handleDrawerKeyDown(e) {
+    if (e.key === "Escape") {
+      toggleDrawer(false);
+    }
+  }
+
+  function toggleDrawer(open) {
+    if (!sidebar) return;
+    if (open) {
+      sidebar.classList.add("drawer-open");
+      if (drawerBackdrop) drawerBackdrop.classList.add("active");
+      document.addEventListener("keydown", handleDrawerKeyDown);
+      if (drawerCloseBtn) {
+        drawerCloseBtn.focus();
+      }
+    } else {
+      sidebar.classList.remove("drawer-open");
+      if (drawerBackdrop) drawerBackdrop.classList.remove("active");
+      document.removeEventListener("keydown", handleDrawerKeyDown);
+      if (drawerOpenBtn) {
+        drawerOpenBtn.focus();
+      }
+    }
+  }
+
+  if (drawerOpenBtn) {
+    drawerOpenBtn.addEventListener("click", () => toggleDrawer(true));
+  }
+  if (drawerCloseBtn) {
+    drawerCloseBtn.addEventListener("click", () => toggleDrawer(false));
+  }
+  if (drawerBackdrop) {
+    drawerBackdrop.addEventListener("click", () => toggleDrawer(false));
+  }
+
+  if (sidebar) {
+    sidebar.addEventListener("click", (e) => {
+      if (e.target.closest(".sidebar-item") && window.innerWidth <= 768) {
+        toggleDrawer(false);
+      }
+    });
+  }
 }
 
 // Vertical Resizer for Output Terminal
