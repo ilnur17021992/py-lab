@@ -103,6 +103,10 @@ html, body {
     font-size: 12px;
   }
 
+  .nav-search-wrapper .search-kbd {
+    display: none;
+  }
+
   .nav-right {
     gap: 6px;
     flex-shrink: 0;
@@ -130,6 +134,12 @@ html, body {
 
   .engine-status #statusText {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .hotkeys-btn {
+    display: none !important;
   }
 }
 
@@ -345,6 +355,15 @@ html, body {
 @media (max-width: 768px), (max-height: 500px) and (max-width: 1024px), (hover: none) and (pointer: coarse) {
   .snake-hud {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-mascot {
+    bottom: 12px;
+    right: 12px;
+    width: 68px;
+    height: 68px;
   }
 }
 

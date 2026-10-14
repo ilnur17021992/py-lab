@@ -8,7 +8,6 @@ import { SearchBar } from './ui/searchBar.js';
 import { TerminalUI } from './ui/terminal.js';
 import { WorkerBridge } from './worker/workerBridge.js';
 import { runnerManager } from './runner/runnerManager.js';
-import { e2bSettingsModal } from './ui/components/e2bSettingsModal.js';
 import { showPromptDialog } from './ui/components/dialogs.js';
 import { toast } from './ui/components/toast.js';
 import { zipExporter } from './utils/zipExporter.js';
@@ -201,17 +200,6 @@ export class PythonWebIDEApp {
       }
     });
 
-    this.workerBridge.addEventListener('e2b-config-required', () => {
-      if (stopBtn) stopBtn.style.display = 'none';
-      if (runBtn) {
-        runBtn.style.display = 'inline-flex';
-        runBtn.disabled = false;
-      }
-      this.terminal.appendSystem('[E2B] Для запуска в облаке требуется указать API ключ e2b.dev в настройках.\n');
-      toast.warning('Для работы E2B укажите API ключ в настройках');
-      e2bSettingsModal.open();
-    });
-
     // Handle interactive Python input() modal dialog
     this.workerBridge.addEventListener('request-input', (e) => {
       const { id, prompt } = e.detail;
@@ -290,7 +278,6 @@ export class PythonWebIDEApp {
     const importInput = document.getElementById('importFileInput');
     const pyodideBtn = document.getElementById('runtimePyodideBtn');
     const e2bBtn = document.getElementById('runtimeE2BBtn');
-    const e2bSettingsBtn = document.getElementById('e2bSettingsBtn');
 
     // Sync UI with current runtime
     const updateRuntimeUI = (runtime) => {
@@ -307,28 +294,16 @@ export class PythonWebIDEApp {
         runnerManager.setRuntime('pyodide');
         state.setRuntime('pyodide');
         updateRuntimeUI('pyodide');
-        toast.info('Среда переключена: Локальный браузер (WASM)');
+        toast.info('Среда выполнения: Local');
       });
     }
 
     if (e2bBtn) {
       e2bBtn.addEventListener('click', () => {
-        const apiKey = state.getE2BApiKey();
         runnerManager.setRuntime('e2b');
         state.setRuntime('e2b');
         updateRuntimeUI('e2b');
-        if (!apiKey) {
-          toast.warning('Требуется API ключ e2b.dev для запуска в облаке');
-          e2bSettingsModal.open();
-        } else {
-          toast.info('Среда переключена: E2B Cloud Sandbox (Linux)');
-        }
-      });
-    }
-
-    if (e2bSettingsBtn) {
-      e2bSettingsBtn.addEventListener('click', () => {
-        e2bSettingsModal.open();
+        toast.info('Среда выполнения: Cloud');
       });
     }
 
@@ -438,8 +413,8 @@ export class PythonWebIDEApp {
     this.terminal.clear();
     const activeFile = state.activeFile || '/main.py';
     const runtime = runnerManager.getRuntime();
-    const runtimeName = runtime === 'e2b' ? 'E2B Cloud Sandbox (Linux)' : 'Pyodide (WASM)';
-    this.terminal.appendSystem(`[Запуск ${activeFile} в ${runtimeName}...]\n\n`);
+    const runtimeName = runtime === 'e2b' ? 'Cloud' : 'Local';
+    this.terminal.appendSystem(`[Запуск ${activeFile} (${runtimeName})...]\n\n`);
 
     this.workerBridge.run(state.currentProject.files, activeFile);
   }

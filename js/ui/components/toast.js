@@ -30,6 +30,12 @@ class ToastManager {
   show(message, type = 'info', duration = 3500) {
     const container = this.ensureContainer();
 
+    const isMobile = typeof window !== 'undefined' && typeof window.innerWidth === 'number' && window.innerWidth <= 600;
+    if (isMobile) {
+      const activeToasts = container.querySelectorAll('.toast');
+      activeToasts.forEach((t) => t.remove());
+    }
+
     const icons = {
       success: '✓',
       error: '✕',
@@ -71,7 +77,8 @@ class ToastManager {
     closeBtn.addEventListener('click', dismiss);
 
     if (duration > 0) {
-      dismissTimer = setTimeout(dismiss, duration);
+      const effectiveDuration = isMobile ? Math.min(duration, 2500) : duration;
+      dismissTimer = setTimeout(dismiss, effectiveDuration);
     }
 
     return dismiss;

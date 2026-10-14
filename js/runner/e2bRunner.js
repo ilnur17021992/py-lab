@@ -1,5 +1,9 @@
 // js/runner/e2bRunner.js - Cloud Sandbox Runner using E2B (Firecracker Linux MicroVM)
-import { state } from '../state.js';
+
+export const E2B_CONFIG = {
+  workerKeyUrl: 'https://crimson-glade-8f31.rahmatullin-ilnur-17021992.workers.dev/api/e2b/key',
+  defaultTimeoutMs: 300000 // 5 minutes
+};
 
 export class E2BRunner extends EventTarget {
   constructor() {
@@ -8,6 +12,7 @@ export class E2BRunner extends EventTarget {
     this.isRunning = false;
     this.status = 'idle';
     this.cachedApiKey = null;
+    this.workerApiKey = null;
     this.sdkModule = null;
     this.currentExecution = null;
     this.activeWorkspaceDir = '/home/user/workspace';
@@ -41,7 +46,7 @@ export class E2BRunner extends EventTarget {
     }
 
     throw new Error(
-      'Не удалось загрузить E2B SDK из CDN. Проверьте интернет-соединение или настройки блокировщика рекламы: ' +
+      'Не удалось загрузить облачный SDK из CDN. Проверьте интернет-соединение или настройки блокировщика рекламы: ' +
       (lastError?.message || '')
     );
   }
@@ -51,7 +56,7 @@ export class E2BRunner extends EventTarget {
    */
   async testConnection(apiKey) {
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
-      throw new Error('API ключ E2B не указан');
+      throw new Error('API ключ не указан');
     }
 
     const CodeInterpreter = await this.loadSDK();
@@ -61,7 +66,7 @@ export class E2BRunner extends EventTarget {
     });
 
     try {
-      const result = await testSandbox.runCode('print("E2B Connected Successfully")');
+      const result = await testSandbox.runCode('print("Connected Successfully")');
       const output = result.logs.stdout.join('') || result.text || 'OK';
       return { success: true, output };
     } finally {
@@ -74,12 +79,50 @@ export class E2BRunner extends EventTarget {
   }
 
   /**
+   * Fetches the E2B API key from Cloudflare Worker gateway
+   */
+  async fetchApiKey() {
+    if (this.workerApiKey) return this.workerApiKey;
+
+    const res = await fetch(E2B_CONFIG.workerKeyUrl);
+    if (!res.ok) {
+      let errMsg = `Ошибка получения ключа от сервера (HTTP ${res.status})`;
+      try {
+        const data = await res.json();
+        if (data && data.error) errMsg = data.error;
+      } catch (e) {}
+      throw new Error(errMsg);
+    }
+
+    const data = await res.json();
+    if (!data || !data.apiKey) {
+      throw new Error('Сервер не вернул API ключ');
+    }
+
+    this.workerApiKey = data.apiKey;
+    return this.workerApiKey;
+  }
+
+  /**
+   * Resolves the API key to use:
+   * 1. Explicitly passed key
+   * 2. Cloudflare Worker gateway key
+   */
+  async resolveApiKey(passedKey = '') {
+    const trimmed = (passedKey || '').trim();
+    if (trimmed) return trimmed;
+
+    return await this.fetchApiKey();
+  }
+
+  /**
    * Initializes or returns existing sandbox instance
    */
-  async getOrCreateSandbox(apiKey, timeoutMs = 300000) {
-    const trimmedKey = (apiKey || '').trim();
+  async getOrCreateSandbox(apiKey) {
+    const effectiveKey = await this.resolveApiKey(apiKey);
+    const trimmedKey = (effectiveKey || '').trim();
     if (!trimmedKey) {
-      throw new Error('E2B API ключ не настроен. Откройте настройки и укажите ключ e2b.dev.');
+      throw new Error('Ключ доступа к облачной среде не настроен.');
     }
 
     const CodeInterpreter = await this.loadSDK();
@@ -100,19 +143,15 @@ export class E2BRunner extends EventTarget {
     }
 
     this.dispatchEvent(new CustomEvent('status', {
-      detail: { status: 'starting', message: 'Создание облачной песочницы Firecracker Linux...' }
+      detail: { status: 'starting', message: 'Подготовка облачного окружения...' }
     }));
     this.dispatchEvent(new CustomEvent('stdout', {
-      detail: '[E2B] 🚀 Инициализация изолированной Linux microVM на e2b.dev...\n'
+      detail: '[Cloud] 🚀 Подготовка облачного окружения...\n'
     }));
-
-    // For ephemeral sandboxes (timeoutMs === 0), set a safe execution timeout (3 min),
-    // and kill explicitly in the finally block
-    const effectiveTimeoutMs = timeoutMs === 0 ? 180000 : timeoutMs;
 
     this.sandbox = await CodeInterpreter.create({
       apiKey: trimmedKey,
-      timeoutMs: effectiveTimeoutMs
+      timeoutMs: E2B_CONFIG.defaultTimeoutMs
     });
     this.cachedApiKey = trimmedKey;
 
@@ -124,7 +163,7 @@ export class E2BRunner extends EventTarget {
     }
 
     this.dispatchEvent(new CustomEvent('stdout', {
-      detail: '[E2B] ✅ Облачное окружение готово. Python ' + (this.sandbox.version || '3.x') + ' Linux VM.\n'
+      detail: '[Cloud] ✅ Облачное окружение готово.\n'
     }));
 
     return this.sandbox;
@@ -148,10 +187,7 @@ export class E2BRunner extends EventTarget {
     }));
 
     try {
-      const apiKey = options.apiKey || state.getE2BApiKey() || '';
-      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : state.getE2BTimeout();
-
-      const sandbox = await this.getOrCreateSandbox(apiKey, timeoutMs);
+      const sandbox = await this.getOrCreateSandbox(options.apiKey);
 
       this.dispatchEvent(new CustomEvent('status', {
         detail: { status: 'uploading', message: 'Синхронизация файлов проекта...' }
@@ -160,7 +196,7 @@ export class E2BRunner extends EventTarget {
       // 1. Upload/sync all project files to sandbox
       const filePaths = Object.keys(files || {});
       this.dispatchEvent(new CustomEvent('stdout', {
-        detail: `[E2B] 📂 Синхронизация файлов проекта (${filePaths.length} шт.)...\n`
+        detail: `[Cloud] 📂 Синхронизация файлов проекта (${filePaths.length} шт.)...\n`
       }));
 
       for (const filePath of filePaths) {
@@ -187,7 +223,7 @@ export class E2BRunner extends EventTarget {
             detail: { status: 'installing', message: 'Установка пакетов...' }
           }));
           this.dispatchEvent(new CustomEvent('stdout', {
-            detail: `[E2B] ⚡ Обнаружен requirements.txt, установка пакетов...\n`
+            detail: `[Cloud] ⚡ Обнаружен requirements.txt, установка пакетов...\n`
           }));
 
           // Ensure uv is present (installed in <1s if needed), then install dependencies via uv
@@ -204,11 +240,11 @@ export class E2BRunner extends EventTarget {
 
           if (installRes.exitCode !== 0) {
             this.dispatchEvent(new CustomEvent('stderr', {
-              detail: `[E2B] ⚠️ Предупреждение: установка зависимостей завершилась с кодом ${installRes.exitCode}\n`
+              detail: `[Cloud] ⚠️ Предупреждение: установка зависимостей завершилась с кодом ${installRes.exitCode}\n`
             }));
           } else {
             this.dispatchEvent(new CustomEvent('stdout', {
-              detail: `[E2B] ✅ Зависимости успешно установлены.\n`
+              detail: `[Cloud] ✅ Зависимости успешно установлены.\n`
             }));
           }
         }
@@ -222,7 +258,7 @@ export class E2BRunner extends EventTarget {
         detail: { status: 'running', message: `Выполнение ${cleanEntryPoint}...` }
       }));
       this.dispatchEvent(new CustomEvent('stdout', {
-        detail: `[E2B] ▶️ python ${cleanEntryPoint}\n----------------------------------------\n`
+        detail: `[Cloud] ▶️ python ${cleanEntryPoint}\n----------------------------------------\n`
       }));
 
       // Run with streaming stdout/stderr
@@ -239,7 +275,7 @@ export class E2BRunner extends EventTarget {
       );
 
       this.dispatchEvent(new CustomEvent('stdout', {
-        detail: `\n----------------------------------------\n[E2B] Код завершен с кодом: ${execResult.exitCode}\n`
+        detail: `\n----------------------------------------\n[Cloud] Код завершен с кодом: ${execResult.exitCode}\n`
       }));
 
       this.isRunning = false;
@@ -257,30 +293,15 @@ export class E2BRunner extends EventTarget {
     } catch (err) {
       this.isRunning = false;
       const errMsg = err?.message || String(err);
-      this.dispatchEvent(new CustomEvent('stderr', { detail: `\n[E2B Ошибка] ${errMsg}\n` }));
+      this.dispatchEvent(new CustomEvent('stderr', { detail: `\n[Ошибка в облаке] ${errMsg}\n` }));
       this.dispatchEvent(new CustomEvent('status', {
-        detail: { status: 'error', message: 'Ошибка выполнения в E2B' }
+        detail: { status: 'error', message: 'Ошибка выполнения в облаке' }
       }));
       this.dispatchEvent(new CustomEvent('finished', {
         detail: { success: false, error: errMsg }
       }));
     } finally {
       this.isRunning = false;
-      const timeoutMs = options.timeoutMs !== undefined ? Number(options.timeoutMs) : state.getE2BTimeout();
-
-      // If user selected ephemeral VM (0 timeout), immediately kill the sandbox
-      if (timeoutMs === 0 && this.sandbox) {
-        try {
-          this.dispatchEvent(new CustomEvent('stdout', {
-            detail: '[E2B] 🧹 Одноразовая ВМ удалена.\n'
-          }));
-          await this.sandbox.kill();
-        } catch (e) {
-          console.warn('[E2BRunner] Ошибка при удалении одноразовой ВМ:', e);
-        } finally {
-          this.sandbox = null;
-        }
-      }
     }
   }
 
@@ -292,7 +313,7 @@ export class E2BRunner extends EventTarget {
     if (this.sandbox) {
       try {
         this.dispatchEvent(new CustomEvent('stdout', {
-          detail: '\n[E2B] Принудительная остановка песочницы...\n'
+          detail: '\n[Cloud] Принудительная остановка выполнения...\n'
         }));
         await this.sandbox.kill();
       } catch (err) {

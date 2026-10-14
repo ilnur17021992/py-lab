@@ -1,7 +1,7 @@
 /* styles/toasts.css - Unified Floating Toast Notifications */
 .toast-container {
   position: fixed;
-  bottom: 24px;
+  top: 72px;
   right: 24px;
   z-index: 10000;
   display: flex;
@@ -9,6 +9,38 @@
   gap: 10px;
   pointer-events: none;
   max-width: 400px;
+}
+
+@media (max-width: 600px) {
+  .toast-container {
+    top: auto;
+    bottom: 100px;
+    right: 16px;
+    left: 16px;
+    align-items: center;
+    max-width: none;
+  }
+
+  .toast {
+    width: fit-content;
+    max-width: calc(100vw - 32px);
+    padding: 7px 14px;
+    font-size: 12.5px;
+    border-radius: 20px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    transform: translateY(16px);
+    opacity: 0;
+  }
+
+  .toast.toast-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.toast-hiding {
+    transform: translateY(16px);
+    opacity: 0;
+  }
 }
 
 .toast {

@@ -189,7 +189,7 @@ body {
 .nav-search-input {
   width: 100%;
   cursor: pointer;
-  padding: 8px 16px 8px 36px;
+  padding: 8px 60px 8px 36px;
   background: rgba(17, 24, 39, 0.75);
   border: 1px solid var(--border-light);
   border-radius: 8px;
@@ -1748,7 +1748,7 @@ body {
 .snake-hud {
   position: fixed;
   bottom: 18px;
-  right: 18px;
+  left: 18px;
   z-index: 90;
   display: flex;
   align-items: center;

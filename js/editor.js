@@ -188,20 +188,26 @@ export class EditorManager {
 
           this.containerEl.innerHTML = '';
 
+          const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
           this.editorInstance = monaco.editor.create(this.containerEl, {
             value: state.getActiveContent(),
             language: 'python',
             theme: 'github-dark-custom',
-            fontSize: 13.5,
+            fontSize: isMobile ? 12 : 13.5,
             fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, monospace",
             fontLigatures: true,
-            minimap: { enabled: true, scale: 0.75 },
+            minimap: { enabled: !isMobile, scale: 0.75 },
             scrollBeyondLastLine: false,
             automaticLayout: true,
             lineNumbers: 'on',
+            lineNumbersMinChars: isMobile ? 2 : 5,
+            lineDecorationsWidth: isMobile ? 4 : 10,
+            glyphMargin: !isMobile,
+            folding: !isMobile,
             tabSize: 4,
             insertSpaces: true,
-            wordWrap: 'on',
+            wordWrap: isMobile ? 'off' : 'on',
             bracketPairColorization: { enabled: true },
             padding: { top: 12, bottom: 12 },
             fixedOverflowWidgets: true,
@@ -212,6 +218,22 @@ export class EditorManager {
             wordBasedSuggestions: 'allDocuments',
             suggestSelection: 'first'
           });
+
+          if (typeof window !== 'undefined') {
+            window.addEventListener('resize', () => {
+              if (!this.editorInstance) return;
+              const mobileNow = window.innerWidth <= 768;
+              this.editorInstance.updateOptions({
+                fontSize: mobileNow ? 12 : 13.5,
+                minimap: { enabled: !mobileNow, scale: 0.75 },
+                lineNumbersMinChars: mobileNow ? 2 : 5,
+                lineDecorationsWidth: mobileNow ? 4 : 10,
+                glyphMargin: !mobileNow,
+                folding: !mobileNow,
+                wordWrap: mobileNow ? 'off' : 'on'
+              });
+            }, { passive: true });
+          }
 
           // Register Hotkeys directly in Monaco
           this.editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {

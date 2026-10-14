@@ -1454,13 +1454,15 @@ function initSearchPalette() {
     });
   }
 
-  // Global hotkey: / (when not typing in an input/textarea/editor)
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName) && !document.activeElement.closest(".monaco-editor")) {
+  // Global hotkey: Ctrl + K / Cmd + K (capture phase to intercept browser omnibox search)
+  window.addEventListener("keydown", (e) => {
+    const key = e.key ? e.key.toLowerCase() : "";
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.code === "KeyK" || key === "k" || key === "л")) {
       e.preventDefault();
+      e.stopPropagation();
       openSearchPalette();
     }
-  });
+  }, { capture: true });
 }
 
 function openSearchPalette() {
@@ -2136,14 +2138,14 @@ function initBackgroundCanvas() {
     const code = e.code;
     const key = e.key ? e.key.toLowerCase() : "";
 
-    // WASD + Arrow Keys + Russian layout support (Ц, Ф, Ы, В)
-    if (code === "KeyW" || key === "w" || key === "ц" || code === "ArrowUp" || key === "arrowup") {
+    // WASD + Russian layout support (Ц, Ф, Ы, В)
+    if (code === "KeyW" || key === "w" || key === "ц") {
       newDir = { x: 0, y: -1 };
-    } else if (code === "KeyS" || key === "s" || key === "ы" || code === "ArrowDown" || key === "arrowdown") {
+    } else if (code === "KeyS" || key === "s" || key === "ы") {
       newDir = { x: 0, y: 1 };
-    } else if (code === "KeyA" || key === "a" || key === "ф" || code === "ArrowLeft" || key === "arrowleft") {
+    } else if (code === "KeyA" || key === "a" || key === "ф") {
       newDir = { x: -1, y: 0 };
-    } else if (code === "KeyD" || key === "d" || key === "в" || code === "ArrowRight" || key === "arrowright") {
+    } else if (code === "KeyD" || key === "d" || key === "в") {
       newDir = { x: 1, y: 0 };
     }
 
@@ -2466,6 +2468,13 @@ function initBackgroundCanvas() {
       }
     }
 
+    if (snake[0]) {
+      window.__snakeHead = {
+        x: snake[0].gx * GRID_SIZE + GRID_SIZE / 2,
+        y: snake[0].gy * GRID_SIZE + GRID_SIZE / 2
+      };
+    }
+
     gameState = "RESPAWNING";
     respawnAlpha = 1;
     deathDebris.length = 0;
@@ -2655,6 +2664,10 @@ function initBackgroundCanvas() {
     }
 
     snake.unshift(newHead);
+    window.__snakeHead = {
+      x: newHead.gx * GRID_SIZE + GRID_SIZE / 2,
+      y: newHead.gy * GRID_SIZE + GRID_SIZE / 2
+    };
 
     if (gameState === "RESPAWNING") {
       respawnAlpha = Math.min(1, respawnAlpha + 0.1);

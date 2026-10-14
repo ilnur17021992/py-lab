@@ -72,14 +72,6 @@ export class RunnerManager extends EventTarget {
    */
   run(projectFiles, entryPoint = '/main.py', options = {}) {
     const runner = this.getActiveRunner();
-    if (this.currentRuntime === 'e2b') {
-      const apiKey = options.apiKey || state.getE2BApiKey() || '';
-      if (!apiKey.trim()) {
-        this.dispatchEvent(new CustomEvent('e2b-config-required'));
-        return;
-      }
-    }
-
     return runner.run(projectFiles, entryPoint, options);
   }
 
@@ -116,13 +108,6 @@ export class RunnerManager extends EventTarget {
    */
   trace(code, filename = 'main.py') {
     return this.pyodideRunner.trace(code, filename);
-  }
-
-  /**
-   * Test E2B API connection
-   */
-  async testE2BConnection(apiKey) {
-    return this.e2bRunner.testConnection(apiKey);
   }
 }
 

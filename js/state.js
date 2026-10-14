@@ -404,28 +404,12 @@ class AppState extends EventTarget {
     this.emitChange('runtime-changed', { runtime });
   }
 
-  getE2BApiKey() {
-    return this._storageGet('e2b_api_key') || '';
-  }
-
-  setE2BApiKey(key) {
-    const trimmed = (key || '').trim();
-    if (trimmed) {
-      this._storageSet('e2b_api_key', trimmed);
-    } else {
-      this._storageRemove('e2b_api_key');
-    }
-    this.emitChange('e2b-key-changed', { hasKey: !!trimmed });
-  }
-
   getE2BTimeout() {
-    const val = this._storageGet('e2b_timeout');
-    return val !== null ? Number(val) : 300000;
+    return 300000;
   }
 
   setE2BTimeout(ms) {
-    this._storageSet('e2b_timeout', String(ms));
-    this.emitChange('e2b-timeout-changed', { timeout: ms });
+    this.emitChange('e2b-timeout-changed', { timeout: 300000 });
   }
 }
 

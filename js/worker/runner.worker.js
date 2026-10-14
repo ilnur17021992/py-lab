@@ -27,7 +27,7 @@ async function initPyodide() {
   }
 
   isInitializing = true;
-  postMessage({ type: 'status', status: 'loading', message: 'Загрузка Pyodide (WASM)...' });
+  postMessage({ type: 'status', status: 'loading', message: 'Подготовка локального окружения...' });
 
   try {
     importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js');
